@@ -1,0 +1,19 @@
+# Extraer de un json todos los campos que contengan IPv4
+
+with open("/home/goose/Code/PythonPractica01/ej2.json", "r") as f:
+    texto = f.readlines()
+
+segunda_lista = []
+
+for linea in texto:
+    if 'IpAddressV4' in linea:
+        segunda_lista.append(linea.split(": ")[1].strip(",\n").strip('"'))
+
+for item in segunda_lista:
+    print(item)
+
+segunda_lista.sort()
+
+with open("/home/goose/Code/PythonPractica01/ip_dump.txt", "w") as salida:
+    for item in segunda_lista:
+        salida.write(item + '\n')
