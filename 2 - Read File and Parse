@@ -1,0 +1,22 @@
+# Read lines out of a log file, extract filenames and hashes, and print them into an output file
+
+# Open file and load all lines into a list
+with open("/home/goose/Code/PyPractice Stages/sample_hashlist") as sh:
+    lst = sh.readlines()
+
+# The repr() statement inside a print statement will print ALL characters, including special ones
+for item in lst:
+    print(repr(item))
+
+# Declare new list to be filled with new values
+file_hash_list = []
+
+# Fill the new list with lines already split/stripped/clipped
+for line in lst:
+    file_hash_list.append(line.strip('\n').split(" ")[5:7])
+
+# Iterate new list and preparse each line before writing to output file
+with open("/home/goose/Code/PyPractice Stages/output.log", "w") as out:
+    for line in file_hash_list:
+        to_be_written = line[0] + " " + line[1] + "\n"
+        out.writelines(to_be_written)
