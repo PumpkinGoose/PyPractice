@@ -1,0 +1,69 @@
+# Load hashes from file, extract names and their corresponding hashes
+# Send queries to VT for each of the hashes and add the values for
+# 'malicious', 'suspicious' and 'undetected' to each file/hash pair
+# Finally, output the enriched list to a file
+
+from subprocess import check_output
+import json
+from time import sleep
+
+
+def get_api_key():  # Retrieves API key from a file
+    with open("/home/goose/Code/PyPractice_Stages/sample_vtapikey", "r") as key:
+        return key.readline().strip("\n")  # Strips newline character, if there is one, before returning
+
+
+def get_hash_list():  # Reads hash file and loads it as a list of lines
+    with open("/home/goose/Code/PyPractice_Stages/sample_hashlist", "r") as lst:
+        raw_list = lst.readlines()
+    hash_list = []
+    for line in raw_list:  # Reads list line by line
+        hash_list.append(line.strip('\n').split(" ")[5:7])  # Strips newline character, splits line by space
+                                                            # characters and selects positions 5 and 6 (5 and before 7)
+
+    if not hash_list[-1]:
+        return hash_list[:-1]  # In some cases the last element will be an empty list, in which case we cut it out
+    else:
+        return hash_list  # Otherwise we return the whole thing
+
+
+def vt_query_sender(api_key, hash):  # Receives API key and hash to query VT, then returns the reply loading it as json
+    return json.loads(check_output("curl --request GET -H 'Content-Type:application/json'"
+                     "--url https://www.virustotal.com/api/v3/files/{" + hash + "} "
+                     "--header 'x-apikey: " + api_key + "'", shell=True))
+
+
+def vt_summary_extractor(vt_json):  # Receives json reply and retrieves the desired values from it, then returns them
+    numbers = []
+    try:
+        vt_summary = vt_json['data']['attributes']['last_analysis_stats']
+        numbers.append(vt_summary['malicious'])
+        numbers.append(vt_summary['suspicious'])
+        numbers.append(vt_summary['undetected'])
+    except:
+        return 'No data'
+    return numbers
+
+
+def write_output_file(hash_list):  # Takes the final, enriched list and prints it out to a file
+    with open("/home/goose/Code/PyPractice_Stages/output.log", "w") as out:
+        for line in hash_list:
+            if line[2] == 'No data':
+                out.write("{0} {1} {2}\n".format(line[0], line[1], line[2]))
+            else:
+                out.write("{0} {1} {2} {3} {4}\n".format(line[0], line[1], line[2][0], line[2][1], line[2][2]))
+
+
+api_key = get_api_key()
+hash_list = get_hash_list()
+counter = 1
+
+for entry in hash_list:  # Iterates through list of hashes
+    vt_answer = vt_query_sender(api_key, entry[1])  # Captures json returned by VT
+    entry.append(vt_summary_extractor(vt_answer))  # Captures extraction of key values from json
+    print("Line {0} complete. Waiting...".format(counter))  # Keeps track of iterations
+    print(entry)  # Illustrative output, not necessary for the script
+    counter += 1  # Counter added to keep track of which iteration we are on
+    sleep(15)  # Wait added because VT API only allows for 4 queries per minute
+
+write_output_file(hash_list)
