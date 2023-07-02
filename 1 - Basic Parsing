@@ -1,0 +1,13 @@
+# Parse the example_string variable to extract the filename and hash to separate variables
+# Show these variables on terminal output (stdout)
+
+example_string = 'May 28, 2023 @ 11:21, assadcrimes.ppsx 76F8142B4E52C671871B3DF87F10C30C'
+
+# ['May', '28,', '2023', '@', '11:21,', 'assadcrimes.ppsx', '76F8142B4E52C671871B3DF87F10C30C']
+#   [0]    [1]     [2]   [3]   [4]            [5]                           [6]
+
+filename = example_string.split(" ")[5]
+hash_str = example_string.split(" ")[6]
+
+print(filename)
+print(hash_str)
