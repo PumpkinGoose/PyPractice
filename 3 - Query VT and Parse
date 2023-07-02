@@ -1,0 +1,21 @@
+# Query VT with one hash, using an API key, and then print out the hash and the values for
+# 'malicious', 'suspicious' and 'undetected'
+
+api_key = '5b4b640b0712ae7d101743d536a19bb7b465eeac84b8472074212ca51eb344d0'
+hash = '7D898530D2E77F15F5BADCE8D7DF215E'
+
+from subprocess import check_output
+import json
+
+returned_query = json.loads(check_output("curl --request GET -H 'Content-Type:application/json'"
+                     "--url https://www.virustotal.com/api/v3/files/{" + hash + "} "
+                     "--header 'x-apikey: " + api_key + "'", shell=True))
+
+# To print the whole json returned:
+# print(json.dumps(returned_query, indent=2))
+
+summary = returned_query['data']['attributes']['last_analysis_stats']
+print(hash)
+print(summary['malicious'])
+print(summary['suspicious'])
+print(summary['undetected'])
