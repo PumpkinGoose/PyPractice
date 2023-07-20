@@ -11,7 +11,7 @@ for item in lst:
 # Declare new list to be filled with new values
 file_hash_list = []
 
-# Fill the new list with lines already split/stripped/clipped
+# Fill the new list with lines already split/stripped/clipped, the IF excludes empties
 for line in lst:
     if len(line) > 1:
         file_hash_list.append(line.strip('\n').split(" ")[6])
