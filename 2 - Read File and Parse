@@ -13,7 +13,8 @@ file_hash_list = []
 
 # Fill the new list with lines already split/stripped/clipped
 for line in lst:
-    file_hash_list.append(line.strip('\n').split(" ")[5:7])
+    if len(line) > 1:
+        file_hash_list.append(line.strip('\n').split(" ")[6])
 
 # Iterate new list and preparse each line before writing to output file
 with open("/home/goose/Code/PyPractice Stages/output.log", "w") as out:
